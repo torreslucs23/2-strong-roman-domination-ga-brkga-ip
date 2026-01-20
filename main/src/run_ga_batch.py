@@ -27,7 +27,6 @@ CHECKPOINT_FILE = ".checkpoint_ga.txt"
 BACKUP_INTERVAL = 5
 N_RUNS = 20
 
-# Best parameters from irace
 BEST_PARAMS = {
     'population_size': 300,
     'gene_mutation_rate': 0.2825,
