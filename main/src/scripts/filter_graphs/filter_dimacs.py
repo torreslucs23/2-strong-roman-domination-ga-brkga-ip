@@ -62,9 +62,7 @@ def filter_large_graphs(input_dir, output_dir, max_vertices=1000, max_filesize_m
         
         filesize_mb = filesize / (1024 * 1024)
         
-        # Decide if keep or remove
         if n >= max_vertices or filesize >= max_filesize_bytes:
-            # Too large - move to large_graphs folder
             shutil.copy2(filepath, large_graphs_path / filepath.name)
             removed += 1
             status = "REMOVED"
@@ -76,7 +74,6 @@ def filter_large_graphs(input_dir, output_dir, max_vertices=1000, max_filesize_m
             reason_str = ", ".join(reason)
             print(f"{filepath.name:40s} | {status:8s} | {reason_str}")
         else:
-            # Keep it
             shutil.copy2(filepath, output_path / filepath.name)
             kept += 1
             print(f"✓  {filepath.name:40s} | n={n:4d} | m={m:6d} | {filesize_mb:.2f}MB")
@@ -89,6 +86,6 @@ if __name__ == "__main__":
     filter_large_graphs(
         input_dir="graphs/test_graphs/DIMACS_filtered",
         output_dir="graphs/tunning_filtered",
-        max_vertices=500,      # adjust this
-        max_filesize_mb=2      # adjust this
+        max_vertices=500,
+        max_filesize_mb=2
     )

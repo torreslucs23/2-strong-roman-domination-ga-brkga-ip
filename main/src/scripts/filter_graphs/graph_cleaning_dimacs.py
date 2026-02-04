@@ -1,23 +1,23 @@
 ################################################################
-# dependências: networkx
+# dependencies: networkx
 #
-# Script que lê cada arquivo DIMACS (extensão .clq, .col,
-# ou qualquer arquivo que contenha formato DIMACS "p edge" + "e u v")
-# dentro da pasta "descompactados" e converte para um grafo NetworkX.
+# Script that reads DIMACS files (extensions .clq, .col,
+# or any file containing DIMACS format "p edge" + "e u v")
+# from the INPUT_DIR and converts them to NetworkX graphs.
 #
-# Depois salva na pasta "base_final" um arquivo .txt contendo:
-#     qtd_vertices qtd_arestas
+# The script writes to OUTPUT_DIR a .txt file containing:
+#     num_vertices num_edges
 #     u v
 #     u v
 #
-# Os vértices são renumerados para 0-based consecutivo.
+# Vertices are renumbered to a consecutive 0-based labeling.
 #
 ################################################################
 
 import os
 import networkx as nx
 
-# Diretórios
+# Directories
 INPUT_DIR = "BASE"
 OUTPUT_DIR = "base_final"
 
@@ -27,9 +27,10 @@ def ensure_dir(path):
 
 
 def read_dimacs_graph(path):
-    """
-    Lê um grafo no formato DIMACS (edge/clique).
-    Retorna: (G, num_vertices, num_edges)
+    """Read a graph in DIMACS (edge/clique) format.
+
+    Returns:
+        (G, num_vertices, num_edges)
     """
     G = nx.Graph()
     num_vertices = None
@@ -42,6 +43,7 @@ def read_dimacs_graph(path):
                 continue
 
             if line.startswith("c"):
+                # comment line, skip
                 continue
 
             parts = line.split()
@@ -68,8 +70,6 @@ def converter_dimacs_para_txt():
     for root, _, files in os.walk(INPUT_DIR):
         for file in files:
 
-            # Aqui você pode colocar qualquer extensão que seus DIMACS usam
-            # Muitos vêm como .clq, .col, .txt...
             if not file.endswith((".clq", ".col", ".txt", ".dimacs")):
                 continue
 
@@ -77,23 +77,21 @@ def converter_dimacs_para_txt():
             nome_base = os.path.splitext(file)[0]
             caminho_saida = os.path.join(OUTPUT_DIR, f"{nome_base}.txt")
 
-            print(f"Convertendo {file} → {caminho_saida}")
+            print(f"Converting {file} -> {caminho_saida}")
             try:
-                # Lê o grafo DIMACS
                 G, numV, numE = read_dimacs_graph(caminho_entrada)
-
-                # Remove laços (se houver)
+                # remove self-loops
                 G.remove_edges_from(nx.selfloop_edges(G))
 
-                # Garante que é simples
+                # ensure simple graph
                 if isinstance(G, nx.MultiGraph):
                     G = nx.Graph(G)
 
-                # Relabel para 0-based consecutivo
+                # relabel nodes to consecutive 0-based
                 mapping = {old: new for new, old in enumerate(sorted(G.nodes()))}
                 G = nx.relabel_nodes(G, mapping)
                 
-                # Salvar
+                # write header and edge list
                 with open(caminho_saida, "w") as f_out:
                     f_out.write(f"{G.number_of_nodes()} {G.number_of_edges()}\n")
 
@@ -101,9 +99,9 @@ def converter_dimacs_para_txt():
                         f_out.write(f"{u} {v}\n")
 
             except Exception as e:
-                print(f"Erro ao processar {file}: {e}")
+                print(f"Error processing {file}: {e}")
 
-    print("\nConversão concluída com sucesso!")
+    print("\nConversion completed successfully!")
 
 
 if __name__ == "__main__":
